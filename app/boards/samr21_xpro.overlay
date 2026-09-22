@@ -14,3 +14,14 @@
 &porta {
         status = "okay";
 };
+
+&sercom1 {
+        status = "okay";
+        compatible = "atmel,sam0-i2c";
+        clock-frequency = <I2C_BITRATE_STANDARD>;
+
+        bno055@28 {
+                compatible = "bosch,bno055";
+                reg = <0x28>;
+        };
+};

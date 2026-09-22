@@ -1,80 +1,34 @@
-/*
- * Copyright (c) 2021 Nordic Semiconductor ASA
- * SPDX-License-Identifier: Apache-2.0
- */
-
 #include <zephyr/kernel.h>
-#include <zephyr/drivers/sensor.h>
-#include <zephyr/logging/log.h>
+#include <zephyr/device.h>
+#include <zephyr/drivers/i2c.h>
 
-#include <app/drivers/blink.h>
+/* Pega a referencia do barramento sercom1 onde ligamos o sensor */
+#define I2C_NODE DT_NODELABEL(sercom1)
 
-#include <zephyr/app_version.h>
+int main(void) {
+    const struct device *i2c_dev = DEVICE_DT_GET(I2C_NODE);
+    uint8_t chip_id = 0;
 
-LOG_MODULE_REGISTER(main, CONFIG_APP_LOG_LEVEL);
+    if (!device_is_ready(i2c_dev)) {
+        printk("Erro: Barramento I2C (sercom1) nao esta pronto.\n");
+        return 0;
+    }
 
-#define BLINK_PERIOD_MS_STEP 100U
-#define BLINK_PERIOD_MS_MAX  1000U
+    printk("I2C pronto! A procurar o BNO055 no endereco 0x28...\n");
 
-int main(void)
-{
-	int ret;
-	unsigned int period_ms = BLINK_PERIOD_MS_MAX;
-	const struct device *sensor, *blink;
-	struct sensor_value last_val = { 0 }, val;
+    /* O endereco I2C do BNO055 e 0x28. O registrador de CHIP_ID e 0x00 */
+    int ret = i2c_reg_read_byte(i2c_dev, 0x28, 0x00, &chip_id);
 
-	printk("Zephyr Example Application %s\n", APP_VERSION_STRING);
+    if (ret != 0) {
+        printk("Falha na comunicacao I2C (Erro: %d).\n", ret);
+    } else {
+        printk("Sucesso! BNO055 encontrado. CHIP ID: 0x%X (Esperado: 0xA0)\n", chip_id);
+    }
 
-	sensor = DEVICE_DT_GET(DT_NODELABEL(example_sensor));
-	if (!device_is_ready(sensor)) {
-		LOG_ERR("Sensor not ready");
-		return 0;
-	}
-
-	blink = DEVICE_DT_GET(DT_NODELABEL(blink_led));
-	if (!device_is_ready(blink)) {
-		LOG_ERR("Blink LED not ready");
-		return 0;
-	}
-
-	ret = blink_off(blink);
-	if (ret < 0) {
-		LOG_ERR("Could not turn off LED (%d)", ret);
-		return 0;
-	}
-
-	printk("Use the sensor to change LED blinking period\n");
-
-	while (1) {
-		ret = sensor_sample_fetch(sensor);
-		if (ret < 0) {
-			LOG_ERR("Could not fetch sample (%d)", ret);
-			return 0;
-		}
-
-		ret = sensor_channel_get(sensor, SENSOR_CHAN_PROX, &val);
-		if (ret < 0) {
-			LOG_ERR("Could not get sample (%d)", ret);
-			return 0;
-		}
-
-		if ((last_val.val1 == 0) && (val.val1 == 1)) {
-			if (period_ms == 0U) {
-				period_ms = BLINK_PERIOD_MS_MAX;
-			} else {
-				period_ms -= BLINK_PERIOD_MS_STEP;
-			}
-
-			printk("Proximity detected, setting LED period to %u ms\n",
-			       period_ms);
-			blink_set_period_ms(blink, period_ms);
-		}
-
-		last_val = val;
-
-		k_sleep(K_MSEC(100));
-	}
-
-	return 0;
+    while (1) {
+        /* Aqui adicionaremos a leitura dos eixos X, Y e Z no futuro */
+        k_msleep(1000);
+    }
+    
+    return 0;
 }
-
