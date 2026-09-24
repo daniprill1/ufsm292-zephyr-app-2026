@@ -1,17 +1,12 @@
 / {
-        example_sensor: example-sensor {
-                compatible = "zephyr,example-sensor";
-                input-gpios = <&porta 28 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)>;
-        };
-
-        blink_led: blink-led {
-                compatible = "blink-gpio-led";
-                led-gpios = <&porta 19 GPIO_ACTIVE_HIGH>;
-                blink-period-ms = <1000>;
+        aliases {
+                ambient-temp = &temp_sensor;
+                light-adc = &adc;
         };
 };
 
-&porta {
+// mapeamento do sensor de temperatura
+&sercom1 {
         status = "okay";
 };
 
@@ -24,4 +19,16 @@
                 compatible = "bosch,bno055";
                 reg = <0x28>;
         };
+};
+        temp_sensor: at30tse75x@4f {
+                compatible = "atmel,at30tse75x";
+                reg = <0x4f>; // endereco I2C fisico do chip no shield
+                status = "okay";
+        };
+};
+
+// mapeamento sensor de luz
+
+&adc {
+        status = okay;
 };
