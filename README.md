@@ -136,3 +136,27 @@ make html
 
 The output will be stored in the ``_build_sphinx`` folder. You may check for
 other output formats other than HTML by running ``make help``.
+
+
+
+---------------------------------------------------------------------------------------
+# UFSM292 - Nó Sensor (Semanas 1-2)
+
+Este repositório contém o código-fonte do Nó Sensor, desenvolvido no Zephyr RTOS para a placa ATSAMR21-XPRO.
+
+## Funcionalidades Implementadas até agora
+
+- **Hardware e DeviceTree:** Configuração do barramento I2C (`sercom1`) e mapeamento do sensor inercial BNO055 (`0x28`).
+- **Leitura I2C (Raw):** Implementação manual da leitura do BNO055 utilizando a API nativa do Zephyr, incluindo verificação de Chip ID e leitura contínua (burst read) dos eixos X, Y e Z da aceleração.
+- **Empacotamento de Dados:** Criação de uma estrutura C (`struct`) com a diretiva `__attribute__((packed))`, garantindo um pacote de dados binário de exatamente 18 bytes (Node ID, Sequência, Luz, Temp, Aceleração X/Y/Z, Uptime e Flags).
+- **Rádio 802.15.4:** Ativação do subsistema de rede do Zephyr e rádio AT86RF233. Utilização de Raw Sockets (`AF_PACKET`) para injeção direta dos pacotes na rede sem fios (sem pilha IP).
+
+## Como compilar e executar
+# 1. Ativar o ambiente virtual
+C:\caminho\para\zephyrproject.venv\Scripts\Activate.ps1
+
+# 2. Compilar o projeto
+west build -p always -b samr21_xpro app
+
+# 3. Gravar na placa
+west flash
