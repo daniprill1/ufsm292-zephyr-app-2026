@@ -1,34 +1,28 @@
 / {
-        aliases {
-                ambient-temp = &temp_sensor;
-                light-adc = &adc;
-        };
-};
-
-// mapeamento do sensor de temperatura
-&sercom1 {
-        status = "okay";
+    aliases {
+        ambient-temp = &temp_sensor;
+        light-adc = &adc;
+    };
 };
 
 &sercom1 {
+    status = "okay";
+
+    /* O seu sensor inercial */
+    bno055@28 {
+        compatible = "bosch,bno055";
+        reg = <0x28>;
+    };
+
+    /* O sensor de temperatura da Mariane */
+    temp_sensor: at30tse75x@4f {
+        compatible = "atmel,at30tse75x";
+        reg = <0x4f>;
         status = "okay";
-        compatible = "atmel,sam0-i2c";
-        clock-frequency = <I2C_BITRATE_STANDARD>;
-
-        bno055@28 {
-                compatible = "bosch,bno055";
-                reg = <0x28>;
-        };
-};
-        temp_sensor: at30tse75x@4f {
-                compatible = "atmel,at30tse75x";
-                reg = <0x4f>; // endereco I2C fisico do chip no shield
-                status = "okay";
-        };
+    };
 };
 
-// mapeamento sensor de luz
-
+/* O conversor analogico-digital para o sensor de luz */
 &adc {
-        status = okay;
+    status = "okay";
 };
