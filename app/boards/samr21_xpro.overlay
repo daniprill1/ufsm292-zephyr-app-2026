@@ -8,13 +8,11 @@
 &sercom1 {
     status = "okay";
 
-    /* O seu sensor inercial */
-    bno055@28 {
+    bno055@29 {
         compatible = "bosch,bno055";
-        reg = <0x28>;
+        reg = <0x29>;
     };
 
-    /* O sensor de temperatura da Mariane */
     temp_sensor: at30tse75x@4f {
         compatible = "atmel,at30tse75x";
         reg = <0x4f>;
@@ -22,7 +20,16 @@
     };
 };
 
-/* O conversor analogico-digital para o sensor de luz */
 &adc {
     status = "okay";
+    #address-cells = <1>;
+    #size-cells = <0>;
+
+    channel@6 {
+        reg = <6>;
+        zephyr,gain = "ADC_GAIN_1";
+        zephyr,reference = "ADC_REF_VDD_1";
+        zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+        zephyr,resolution = <12>;
+    };
 };
