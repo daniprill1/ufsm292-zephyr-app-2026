@@ -10,7 +10,7 @@
 // bibliotecas de gerenciamento 
 #include <zephyr/net/net_if.h>
 #include <zephyr/net/net_mgmt.h>
-#include <zephyr/net/ieee802154_radio.h>
+#include <zephyr/net/ieee802154_mgmt.h>
 
 #define I2C_NODE DT_NODELABEL(sercom1)
 #define BNO055_ADDR 0x29
