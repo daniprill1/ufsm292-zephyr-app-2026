@@ -7,6 +7,11 @@
 #include <arpa/inet.h>
 #include <errno.h>
 
+// bibliotecas de gerenciamento 
+#include <zephyr/net/net_if.h>
+#include <zephyr/net/net_mgmt.h>
+#include <zephyr/net/ieee802154_radio.h>
+
 #define I2C_NODE DT_NODELABEL(sercom1)
 #define BNO055_ADDR 0x29
 #define TEMP_SENSOR_ADDR 0x4f
@@ -80,6 +85,23 @@ int main(void) {
 
     i2c_reg_write_byte(i2c_dev, BNO055_ADDR, REG_OPR_MODE, MODE_ACCONLY);
     k_msleep(50);
+
+    // ------- INÍCIO DA CONFIGURAÇÃO DE RÁDIO ------------ 
+    struct net_if *iface = net_if_get_default();
+    if (!iface) {
+        printk("Erro: Interface de radio nao encontrada!\n");
+        return 0;
+    }
+    // Definindo a rede (Você precisará combinar esses valores com o Grupo B)
+    uint16_t pan_id = 0xCAFE; 
+    uint16_t channel = 15;   
+
+    // Aplicando as configurações ao hardware
+    net_mgmt(NET_REQUEST_IEEE802154_SET_PAN_ID, iface, &pan_id, sizeof(pan_id));
+    net_mgmt(NET_REQUEST_IEEE802154_SET_CHANNEL, iface, &channel, sizeof(channel));
+    
+    printk("=> Radio Sintonizado: PAN ID 0x%04X | Canal %d\n", pan_id, channel);
+    // --- FIM DA CONFIGURAÇÃO DO RÁDIO ---
 
     int sock = zsock_socket(AF_PACKET, SOCK_RAW, htons(ETH_P_IEEE802154));
     if (sock < 0) {

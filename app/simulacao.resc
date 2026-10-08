@@ -1,0 +1,9 @@
+mach create "SAMR21_Sensor"
+machine LoadPlatformDescription @samr21_xpro.repl
+showAnalyzer sysbus.sercom0
+macro reset
+"""
+    sysbus LoadELF @build/zephyr/zephyr.elf
+"""
+runMacro $reset
+start
